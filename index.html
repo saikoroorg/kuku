@@ -63,7 +63,7 @@ a {
     width: 40px; height: 40px; padding: 10px; margin-left: -28px;
 }
 .menu {
-	width: 160px; height: 40px; margin: 5px 0px;
+	width: 200px; height: 40px; margin: 5px 0px;
 	display: flex; display: -webkit-flex;
 	flex-direction: row; -webkit-flex-direction: row;
 	justify-content: space-between; -webkit-justify-content: space-between;
@@ -97,6 +97,7 @@ a {
 			<a href="?">Kuku</a>
 		</div>
 		<div class="menu">
+			<a id="a10" href="javascript:setLevel('a10');">+10</a>
 			<a id="t10" href="javascript:setLevel('t10');">±10</a>
 			<a id="t20" href="javascript:setLevel('t20');">±20</a>
 			<a id="x9" href="javascript:setLevel('x9');">×9</a>
@@ -120,7 +121,7 @@ a {
 
 	// Set playing level.
 	var setLevel = (x) => {
-        var levels = ["t10", "t20", "x9", "x19"];
+        var levels = ["a10", "t10", "t20", "x9", "x19"];
         level = levels.includes(x) ? x : "x9";
         for (let i = 0; i < levels.length; ++i) {
             let menu = document.getElementById(levels[i]);
@@ -175,8 +176,16 @@ a {
 			cubeExpand(0.2, numberSprite);
 			cubeDilute(0.2, numberSprite);
 
+			// Add up to 10.
+			if (level == "a10") {
+				operator = "+";
+				probrem1 = cubeRandom(9) + 1;
+				probrem2 = cubeRandom(10 - probrem1) + 1;
+				answer = probrem1 + probrem2;
+				answerCounts = 1;
+
 			// Add/Sub up to 10.
-			if (level == "t10") {
+			} else if (level == "t10") {
 				operator = cubeRandom(2) ? "+" : "-";
 				if (operator == "+") {
 					probrem1 = cubeRandom(9) + 1;
