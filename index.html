@@ -1,445 +1,280 @@
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-<title>Kuku</title>
-<link rel="icon" type="image/svg" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.png" sizes="192x192">
-<link rel="manifest" href="manifest.json">
-<style>
-body {
-	font-family: Courier, monospace, sans-serif;
-	background-color: #fff;
-}
-a {
-	color: #ccc;
-	text-decoration: none;
-}
-#container {
-	width: 100%; height: 100%;
-	display: flex; display: -webkit-flex;
-	flex-direction: column; -webkit-flex-direction: column;
-	justify-content: flex-start; -webkit-justify-content: flex-start;
-	align-items: center; -webkit-align-items: center;
-}
-#header {
-	width: 95%; margin: 0px;
-	flex: 0 1 auto;
-	display: flex; display: -webkit-flex;
-	flex-direction: row; -webkit-flex-direction: row;
-	justify-content: space-between; -webkit-justify-content: space-between;
-	align-items: center; -webkit-align-items: center;
-}
-#contents {
-	width: 95%; height: 90%;
-	flex: 1 1 auto;
-	display: flex; display: -webkit-flex;
-	flex-direction: column; -webkit-flex-direction: column;
-	justify-content: center; -webkit-justify-content: center;
-	align-items: center; -webkit-align-items: center;
-	background-color: #eee;
-}
-#footer {
-	width: 95%; margin: 0px;
-	flex: 0 1 auto;
-	display: flex; display: -webkit-flex;
-	flex-direction: row; -webkit-flex-direction: row;
-	justify-content: flex-end; -webkit-justify-content: flex-end;
-	align-items: center; -webkit-align-items: center;
-	font-size: 12px;
-	color: #eee;
-}
-.logo {
-	width: 160px; height: 60px; margin: 0px 16px;
-	display: flex; display: -webkit-flex;
-	flex-direction: row; -webkit-flex-direction: row;
-	justify-content: flex-start; -webkit-justify-content: flex-start;
-	align-items: center; -webkit-align-items: center;
-}
-.logo .icon {
-	width: 40px; height: 40px; padding: 10px; margin-left: -28px;
-}
-.logo .title {
-	font-size: 24px;
-	color: #000;
-}
-.menu {
-	width: 200px; height: 40px; margin: 5px 0px;
-	display: flex; display: -webkit-flex;
-	flex-direction: row; -webkit-flex-direction: row;
-	justify-content: space-between; -webkit-justify-content: space-between;
-	align-items: flex-end; -webkit-align-items: flex-end;
-	background-color: #888;
-}
-.menu a {
-	width: 40px; height: 40px;
-	display: flex; display: -webkit-flex;
-	flex-direction: column; -webkit-flex-direction: column;
-	justify-content: center; -webkit-justify-content: center;
-	align-items: center; -webkit-align-items: center;
-	font-size: 16px;
-	color: #fff;
-	text-decoration: none;
-	transform: scale(1);
-	opacity: 1;
-}
-.menu a:hover {
-	transform: scale(1);
-	opacity: 0.6;
-}
-.menu a:active {
-	transform: scale(0.9);
-	opacity: 1;
-}
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+<title></title>
+<link rel="icon" type="image/svg" href="icon.svg" />
+<link rel="apple-touch-icon" href="icon.png" sizes="192x192" />
+<link rel="manifest" href="app.json" />
+<link rel="stylesheet" href="pico.css" />
 </head>
 <body>
 <div id="container">
 	<h1 id="header">
 		<div class="logo">
-			<!--img class="icon" src="icon.svg"/!-->
-			<a class="title" href="?">Kuku</a>
+			<a id="title" href="javascript:pico.app.onReset();">
+			<a id="subtitle" href="javascript:top.location.reload();"></a>
+		</div>
+		<div class="menu center">
+			<a class="item light secret" id="action" href="javascript:pico.app.onAction();">
+				<span id="actionText"></span>
+				<img class="icon" id="actionIcon" src="" />
+			</a>
 		</div>
 		<div class="menu">
-			<a id="a10" href="javascript:setLevel('a10');">+10</a>
-			<a id="t10" href="javascript:setLevel('t10');">±10</a>
-			<a id="t20" href="javascript:setLevel('t20');">±20</a>
-			<a id="x9" href="javascript:setLevel('x9');">×9</a>
-			<a id="x19" href="javascript:setLevel('x19');">×19</a>
+			<a class="item clear secret" id="minus" href="javascript:pico.app.onSelect(-1);">-</a>
+			<a class="item light secret" id="select" href="javascript:pico.app.onSelect(0);">
+				<span id="selectText"></span>
+				<img class="icon" id="selectIcon" src="" />
+			</a>
+			<a class="item clear secret" id="plus" href="javascript:pico.app.onSelect(+1);">+</a>
 		</div>
 	</h1>
-	<div id="contents" class="cubeScreen"></div>
-	<h6 id="footer">
-		<div class="author"><!--$author--></div>
-		<div class="version"><!--$version--></div>
-		.
-	</h6>
+	<div id="contents">
+		<div id="screen" class="picoImage picoTouch"></div>
+	</div>
 </div>
-<script>console.log = () => {};</script>
-<script src="background.js"></script>
-<script src="cube-api-0.8.js"></script>
-<!--Menu--><script>
+<h6 id="footer">
+	<div id="author"></div>/
+	<div id="version"></div>
+</h6>
+<!--script>console.log = () => {};</script!-->
+<script src="pico.js"></script>
+<script src="index.js"></script>
+<!--Event--><script>
 
-	// Get query parameters.
-	var query = "" + cubeLoadParam();
-	var level = !query.match("^$|app") ? query : "x9"; // Playing level.
-	var playing = 0; // Playing count.
+// Change label.
+function picoLabel(id, text=null, icon=null) {
+	pico.app.setLabel(id, text, icon);
+}
 
-	// Set playing level.
-	var setLevel = (x) => {
-		var levels = ["a10", "t10", "t20", "x9", "x19"];
-		level = levels.includes(x) ? x : "x9";
-		for (let i = 0; i < levels.length; ++i) {
-			let menu = document.getElementById(levels[i]);
-			if (menu) {
-				menu.style.backgroundColor = levels[i] == level ? "#000" : "#888";
-			}
+// Change title.
+function picoTitle(text=null, subtext=null) {
+	pico.app.setTitle(text, subtext);
+}
+
+// Switch script or share.
+async function picoSwitch(script=null) {
+	await pico.app.switchScript(script);
+}
+
+// Enable wake lock.
+function picoWakelock() {
+	pico.app.wakelock();
+}
+
+// Enable wide screen and return true if landscape mode.
+function picoWidescreen(enable=true) {
+	return pico.app.widescreen(enable);
+}
+
+//************************************************************/
+
+// Namespace.
+var pico = pico || {};
+
+// App class.
+pico.App = class {
+	static script = "app.js"; // Default script.
+
+	// constructor.
+	constructor() {
+		this.path = "./index.html"; // App html path.
+		this.url = null; // Referenced url.
+		this.script = null; // App script.
+		this.refer = null; // Referenced script.
+		this.title = ""; // App title.
+		this.ver = 0; // App version.
+
+		// Load app script.
+		let script = picoStrings("s");
+		if (script) {
+			this.script = script;
 		}
-		playing = -1; // Replay.
-	};
+		var e = document.createElement('script');
+		e.src = this.script ? this.script : pico.App.script;
+		document.body.appendChild(e);
 
-	// Initialize settings.
-	setLevel(level);
-</script><!--/Menu-->
-<!--Main--><script>(async()=>{
-
-	// Resize screen.
-	cubeResizeScreen(120, 80);
-
-	// Create sprites.
-	var numberCounts = 1;
-	var numberSprite = await cubeSprite("image.svg", 40, 40);
-	var probremCounts = 3;
-	var probremSprites = [];
-	for (var i = 0; i < probremCounts; i++) {
-		probremSprites[i] = await cubeSprite("image.svg", 40, 40);
+		window.addEventListener("resize", () => {
+			this.onResize()
+		}); // Resize.
+		window.addEventListener("load", () => {
+			this.onLoad();
+		}); // Load.
 	}
-	var answerCounts = 6;
-	var answerSprites = [];
-	var backgroundSprites = [];
-	var pointSprite = null;
-	var answerFrames = [];
-	for (var i = 0; i < answerCounts; i++) {
-		backgroundSprites[i] = await cubeSprite("image.svg", 40, 40);
-		answerSprites[i] = await cubeSprite("image.svg", 40, 40);
+
+	// On reset button.
+	async onReset() {
+		picoResetParams();
+		if (this.ver > 0) {
+			picoSetStrings(this.ver, "v");
+		}
+		await picoReload();
 	}
 
-	// Probrem and answer.
-	//var playing = 0; // Playing count.
-	var probrem1 = 0;
-	var probrem2 = 0;
-	var operator = "*";
-	var answer = 0;
-	var angle = 0;
-	while (true) {
-
-		// Probrem and answer loop.
-		var startTime = cubeTime();
-		for (playing = 1; playing <= 20; playing++) {
-
-			// Set number sprite faces.
-			cubeAnimate(playing, numberSprite);
-			cubeExpand(0.2, numberSprite);
-			cubeDilute(0.2, numberSprite);
-
-			// Add up to 10.
-			if (level == "a10") {
-				operator = "+";
-				probrem1 = cubeRandom(9) + 1;
-				probrem2 = cubeRandom(10 - probrem1) + 1;
-				answer = probrem1 + probrem2;
-				answerCounts = 1;
-
-			// Add/Sub up to 10.
-			} else if (level == "t10") {
-				operator = cubeRandom(2) ? "+" : "-";
-				if (operator == "+") {
-					probrem1 = cubeRandom(9) + 1;
-					probrem2 = cubeRandom(10 - probrem1) + 1;
-					answer = probrem1 + probrem2;
-				} else {
-					probrem1 = cubeRandom(10) + 1;
-					probrem2 = cubeRandom(probrem1) + 1;
-					answer = probrem1 - probrem2;
-				}
-				answerCounts = 1;
-
-			// Add/Sub up to 20.
-			} else if (level == "t20") {
-				operator = cubeRandom(2) ? "+" : "-";
-				if (operator == "+") {
-					probrem1 = cubeRandom(19) + 1;
-					probrem2 = cubeRandom(20 - probrem1) + 1;
-					answer = probrem1 + probrem2;
-				} else {
-					probrem1 = cubeRandom(20) + 1;
-					probrem2 = cubeRandom(probrem1) + 1;
-					answer = probrem1 - probrem2;
-				}
-				answerCounts = 1;
-
-			// Mul 11x1 to 19x19.
-			} else if (level == "x19") {
-				operator = "*";
-				probrem1 = cubeRandom(9) + 11;
-				probrem2 = cubeRandom(19) + 1;
-				answer = probrem1 * probrem2;
-				answerCounts = 3;
-
-			// Mul 1x1 to 9x9.
-			} else {
-				operator = "*";
-				probrem1 = cubeRandom(9) + 1;
-				probrem2 = cubeRandom(9) + 1;
-				answer = probrem1 * probrem2;
-				answerCounts = 2;
-			}
-
-			// Set probrem sprite faces.
-			cubeAnimate(probrem1, probremSprites[0]);
-			if (operator == "+") {
-				cubeAnimate(22, probremSprites[1]);
-				cubeRotate(0, probremSprites[1]);
-			} else if (operator == "-") {
-				cubeAnimate(23, probremSprites[1]);
-				cubeRotate(0, probremSprites[1]);
-			} else {
-				cubeAnimate(22, probremSprites[1]);
-				cubeRotate(45, probremSprites[1]);
-			}
-			cubeAnimate(probrem2, probremSprites[2]);
-
-			// Probrem sprites.
-			for (var i = 0; i < probremCounts; i++) {
-				cubeExpand(2.4 / (probremCounts + 1), probremSprites[i]);
-				cubeDilute(1, probremSprites[i]);
-			}
-
-			// Probrem loop.
-			while (playing > 0) {
-				cubeClear();
-				var size = cubeScreenSize();
-
-				// Draw number sprites.
-				{
-					var sx = size.x / 2;
-					var sy = size.y / 12;
-					cubeMove(sx, sy, numberSprite);
-					cubeDraw(numberSprite);
-				}
-
-				// Draw probrem sprites.
-				for (var i = 0; i < probremCounts; i++) {
-					var sx = size.x * (i + 1) / (probremCounts + 1);
-					var sy = size.y / 4;
-					cubeMove(sx, sy, probremSprites[i]);
-					cubeDraw(probremSprites[i]);
-				}
-
-				// Roll sprites.
-				angle = (angle + 20) % 360;
-
-				// Set answer sprite faces.
-				for (var i = 0; i < answerCounts; i++) {
-					cubeAnimate(24, backgroundSprites[i]);
-					cubeAnimate(cubeRandom(10), answerSprites[i]);
-					cubeExpand(2.8 / (answerCounts + 2), backgroundSprites[i]);
-					cubeExpand(2.8 / (answerCounts + 2), answerSprites[i]);
-					cubeRotate(angle, backgroundSprites[i]);
-					cubeRotate(angle, answerSprites[i]);
-					cubeDilute(0.5, answerSprites[i]);
-				}
-
-				// Draw answer sprites.
-				for (var i = 0; i < answerCounts; i++) {
-					var sx = size.x * (answerCounts - i) / (answerCounts + 1);
-					var sy = size.y * 2 / 3;
-					cubeMove(sx, sy, backgroundSprites[i]);
-					cubeMove(sx, sy, answerSprites[i]);
-					cubeDraw(backgroundSprites[i]);
-					cubeDraw(answerSprites[i]);
-				}
-
-				// Wait for input.
-				await cubeReadJoypad(10);
-				if (cubeJoypadAction()) {
-					break;
-				}
-			}
-
-			// Probrem sprites.
-			for (var i = 0; i < probremCounts; i++) {
-				cubeDilute(0.5, probremSprites[i]);
-			}
-
-			// Answer sprites.
-			if (answerCounts == 1) {
-				answerFrames[0] = answer;
-			} else if (answerCounts == 2) {
-				answerFrames[0] = cubeMod(answer, 10);
-				answerFrames[1] = answer >= 10 ? cubeDiv(answer, 10) : 21;
-			} else if (answerCounts == 3) {
-				answerFrames[0] = cubeMod(answer, 10);
-				answerFrames[1] = cubeMod(cubeDiv(answer, 10), 10);
-				answerFrames[2] = answer >= 100 ? cubeDiv(answer, 100) : 21;
-			} else {
-				answerCounts = 0;
-				for (var r = answer; r > 0; ) {
-					answerFrames[answerCounts] = cubeMod(r, 10);
-					r = cubeDiv(r, 10);
-					answerCounts++;
-				}
-			}
-
-			// Set answer sprite faces.
-			for (var i = 0; i < answerCounts; i++) {
-				cubeAnimate(24, backgroundSprites[i]);
-				cubeAnimate(answerFrames[i], answerSprites[i]);
-				cubeExpand(3.2 / (answerCounts + 2), backgroundSprites[i]);
-				cubeExpand(3.2 / (answerCounts + 2), answerSprites[i]);
-				cubeRotate(0, backgroundSprites[i]);
-				cubeRotate(0, answerSprites[i]);
-				cubeDilute(1, answerSprites[i]);
-			}
-
-			// Answer loop.
-			while (playing > 0) {
-				cubeClear();
-				var size = cubeScreenSize();
-
-				// Draw number sprites.
-				{
-					var sx = size.x / 2;
-					var sy = size.y / 12;
-					cubeMove(sx, sy, numberSprite);
-					cubeDraw(numberSprite);
-				}
-
-				// Draw probrem sprites.
-				for (var i = 0; i < probremCounts; i++) {
-					var sx = size.x * (i + 1) / (probremCounts + 1);
-					var sy = size.y / 4;
-					cubeMove(sx, sy, probremSprites[i]);
-					cubeDraw(probremSprites[i]);
-				}
-
-				// Draw answer sprites.
-				for (var i = 0; i < answerCounts; i++) {
-					var sx = size.x * (answerCounts - i) / (answerCounts + 1);
-					var sy = size.y * 2 / 3;
-					cubeMove(sx, sy, backgroundSprites[i]);
-					cubeMove(sx, sy, answerSprites[i]);
-					cubeDraw(backgroundSprites[i]);
-					cubeDraw(answerSprites[i]);
-				}
-
-				// Wait for input.
-				await cubeReadJoypad(10);
-				if (cubeJoypadAction()) {
-					break;
-				}
-			}
-		}
-
-		// Result sprites.
-		{
-			// Total time.
-			totalTime = cubeTime() - startTime;
-			if (totalTime > 1000000) {
-				totalTime = 999999;
-			}
-
-			// Total time fractional part.
-			var totalTimeFractionalPart = cubeMod(totalTime, 1000);
-			var r = cubeDiv(totalTimeFractionalPart, 10);
-			for (answerCounts = 0; answerCounts < 2; ) {
-				answerFrames[answerCounts] = cubeMod(r, 10);
-				r = cubeDiv(r, 10);
-				answerCounts++;
-			}
-
-			// Decimal point.
-			answerFrames[answerCounts] = 21;
-			answerCounts++;
-
-			// Total time integer part.
-			var totalTimeIntergerPart = cubeDiv(totalTime, 1000);
-			for (r = totalTimeIntergerPart; r > 0 || answerCounts < 4;) {
-				answerFrames[answerCounts] = cubeMod(r, 10);
-				r = cubeDiv(r, 10);
-				answerCounts++;
-			}
-		}
-
-		// Set result sprite faces.
-		for (var i = 0; i < answerCounts; i++) {
-			cubeAnimate(answerFrames[i], answerSprites[i]);
-			cubeExpand(2.4 / (answerCounts + 1), answerSprites[i]);
-			cubeRotate(0, answerSprites[i]);
-		}
-
-		// Result loop.
-		while (playing > 0) {
-			cubeClear();
-			var size = cubeScreenSize();
-
-			// Draw result sprites.
-			for (var i = 0; i < answerCounts; i++) {
-				var sx = size.x * (answerCounts - i) / (answerCounts + 1);
-				var sy = size.y / 2;
-				cubeMove(sx, sy, answerSprites[i]);
-				cubeDraw(answerSprites[i]);
-			}
-
-			// Wait for input.
-			await cubeReadJoypad(10);
-			if (cubeJoypadAction()) {
-
-				// Restart.
-				playing = 0;
-			}
+	// On acction button.
+	async onAction() {
+		if (typeof appAction === "function") {
+			await appAction();
 		}
 	}
-})();</script><!--/Main-->
+
+	// On select button.
+	async onSelect(x) {
+		if (typeof appSelect === "function") {
+			await appSelect(x);
+		}
+	}
+
+	// On resize event.
+	async onResize() {
+		if (typeof appResize === "function") {
+			await appResize();
+		}
+	}
+
+	// On load event.
+	async onLoad() {
+		try {
+			let refer = picoStrings("r");
+			if (refer) {
+				this.refer = refer;
+			}
+			let title = picoStrings("t");
+			if (title) {
+				this.title = title;
+				picoTitle(this.title);
+			}
+			this.url = picoStrings("u");
+			this.ver = picoStrings("v");
+			if (typeof appLoad === "function") {
+				await appLoad();
+			}
+			picoFlush(); // Flush to skip first read.
+			for (;;) {
+				await picoRead();
+				picoClear();
+				await appMain();
+				await picoFlip(0);
+			}
+		} catch (error) {
+			console.error(error.name, error.message);
+		}
+	}
+
+	// Change label.
+	setLabel(id, text=null, icon=null) {
+		let e = document.getElementById(id);
+		if (e) {
+			e.style.display = (text || icon) ? "flex" : "none";
+			let e1 = document.getElementById(id + "Text");
+			let e2 = document.getElementById(id + "Icon");
+			if (e1 && text) {
+				e1.style.display = "flex";
+				e1.innerText = text;
+				if (e2 && !icon) {
+					e2.style.display = "none";
+				}
+			} else if (e2 && icon) {
+				e2.style.display = "flex";
+				e2.src = icon;
+				if (e1 && !text) {
+					e1.style.display = "none";
+				}
+			} else if (text) {
+				e.innerText = text;
+			}
+		}
+		picoFlush();
+	}
+
+	// Change title.
+	setTitle(text=null, subtext=null) {
+		let e = document.getElementsByTagName("title");
+		if (e && e[0]) {
+			if (text) {
+				e[0].style.display = "flex";
+				e[0].innerText = text;
+			} else {
+				e[0].style.display = "none";
+				e[0].innerText = "";
+			}
+		}
+		if (text) {
+			this.title = text;
+			picoLabel("title", text);
+		}
+		if (subtext) {
+			picoLabel("subtitle", subtext)
+		}
+	}
+
+	// Switch script or share.
+	async switchScript(script=null) {
+		if (this.ver > 0) {
+			picoSetStrings(this.ver, "v");
+		}
+
+		// Change and reload script.
+		if (script) {
+			picoSetStrings(this.path, "u");
+			if (this.title) {
+				picoSetStrings(this.title, "t");
+			}
+			picoSetStrings(script, "s");
+			if (this.script) {
+				picoSetStrings(this.script, "r");
+			}
+			await picoReload();
+
+		// Back or jump to next app.
+		} else if (this.url) {
+			if (this.refer) {
+				picoSetStrings(this.refer, "s");
+			}
+			await picoReload(this.url);
+
+		// Share.
+		} else {
+			if (this.script) {
+				picoSetStrings(this.script, "s");
+			}
+			await picoShare();
+		}
+	}
+
+	// Enable wake lock.
+	wakelock() {
+		try {
+
+			// Wake lock.
+			// Not work on iOS 16 PWA.
+			// https://bugs.webkit.org/show_bug.cgi?id=254545
+			if (navigator.wakeLock) {
+				console.log("Request wake lock.");
+				navigator.wakeLock.request("screen");
+			} else {
+				console.log("No wake lock.");
+			}
+		} catch (error) {
+			console.error(error.name, error.message);
+		}
+	}
+
+	// Enable wide screen and return true if landscape mode.
+	widescreen(enable) {
+		let e = document.getElementById(enable ? "screen" : "widescreen");
+		if (e) {
+			e.id = enable ? "widescreen" : "screen";
+		}
+
+		// True if landscape mode.
+		return window.matchMedia("(min-aspect-ratio: 0.8)").matches;
+	}
+}
+
+// Master app.
+pico.app = new pico.App();
+</script><!--/Event-->
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
 	"name": "kuku",
 	"short_name": "Kuku",
-	"version": "0.8.30901",
+	"version": "0.8.40123a",
 	"author": "saikoro.org",
 	"background_color": "#fff",
 	"theme_color": "#fff",
@@ -15,5 +15,6 @@
 		"type": "image/png"
 	}],
 	"display": "standalone",
-	"start_url": "./?app=1"
+	"start_url": "./?v=1",
+	"contents": ["./", "./pico.css", "./pico.js", "./app.js", "./index.js"]
 }
