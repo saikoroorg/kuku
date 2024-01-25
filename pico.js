@@ -3,7 +3,7 @@
 // Namespace.
 var pico = pico || {};
 pico.name = "pico";
-pico.version = "0.9.40101";
+pico.version = "0.9.40125";
 
 /* PICO Image module */
 
@@ -115,6 +115,15 @@ function picoSpriteSize(cells=[0,9,9,1,0,0]) {
 async function picoSpriteData(cells=[0,9,9,1,0,0], colors=null, scale=10) {
 	try {
 		return await pico.image.spriteData(cells, colors, scale);
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+// Get screen data file.
+async function picoScreenFile(bgcolors=null,  watermark=null) {
+	try {
+		return await pico.image.screenFile(bgcolors,  watermark);
 	} catch (error) {
 		console.error(error);
 	}
@@ -371,13 +380,46 @@ pico.Image = class {
 	spriteData(cells=[0,9,9,1,0,0], colors=null, scale=10) {
 		return navigator.locks.request(pico.image.offscreen.lock, async (lock) => {
 			return new Promise(async (resolve) => {
-				await pico.image.offscreen._color(colors);
 				let size = pico.image.offscreen._spriteSize(cells);
 				await pico.image.offscreen._resize(size * scale, size * scale);
 				await pico.image.offscreen._ready();
 				await pico.image.offscreen._reset(0, 0, 0, scale);
+				await pico.image.offscreen._color(colors);
 				await pico.image.offscreen._sprite(cells, 0);
 				resolve(pico.image.offscreen._data());
+			}); // end of new Promise.
+		}); // end of lock.
+	}
+
+	// Draw bg/watermark and get screen data file.
+	async screenFile(bgcolors=null,  watermark=null) {
+		if (!bgcolors && !watermark) {
+			return await pico.image._file();
+		}
+		return navigator.locks.request(pico.image.offscreen.lock, async (lock) => {
+			return new Promise(async (resolve) => {
+				await pico.image.offscreen._resize(
+					pico.image.canvas[0].width/pico.Image.ratio,
+					pico.image.canvas[0].height/pico.Image.ratio);
+				await pico.image.offscreen._ready();
+				await pico.image.offscreen._reset(0, 0, 0, 1);
+				if (bgcolors) {
+					await pico.image.offscreen._color(bgcolors);
+					await pico.image.offscreen._draw(0, -100, -100, 200, 200);
+				}
+				await pico.image.offscreen._image(pico.image);
+				if (watermark && watermark.length >= 2) {
+					const w = pico.Image.charWidth;
+					let x = 100 - (pico.Image.charWidth * (watermark.length + 1) / 2);
+					let y = 100 - pico.Image.charHeight;
+					await pico.image.offscreen._move(x, y);
+					await pico.image.offscreen._move(-(watermark.length-1)/2 * w, 0);
+					for (let i = 0; i < watermark.length; i++) {
+						await pico.image.offscreen._char(watermark.charCodeAt(i), -1);
+						await pico.image.offscreen._move(w, 0);
+					}
+				}
+				resolve(pico.image.offscreen._file());
 			}); // end of new Promise.
 		}); // end of lock.
 	}
@@ -1225,23 +1267,45 @@ pico.sound = new pico.Sound();
 function picoRandom(max, seed=0) {
 	return pico.param.random(max, seed);
 }
+
 // Random seed.
 function picoSeed() {
 	return pico.param.seed();
 }
+
 // Time.
 function picoTime() {
 	return Date.now();
 }
 
+// Date (yymmddhhmmss).
+function picoDate() {
+	let date = new Date();
+	let year = ("" + date.getYear()).slice(-2);
+	let mon = ("0" + (date.getMonth() + 1)).slice(-2);
+	let day = ("0" + date.getDate()).slice(-2);
+	let hour = ("0" + date.getHours()).slice(-2);
+	let min = ("0" + date.getMinutes()).slice(-2);
+	let sec = ("0" + date.getSeconds()).slice(-2);
+	return parseInt(year + mon + day + hour + min + sec, 10);
+}
+
 // Reload with param.
 async function picoReload(url=null) {
-	await pico.param.reload(url);
+	try {
+		await pico.param.reload(url);
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 // Share params.
-async function picoShare(url=null, file=null) {
-	await pico.param.share(url, file);
+async function picoShare(url=null, files=null) {
+	try {
+		await pico.param.share(url, files);
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 // Get all params by one strings.
@@ -1476,11 +1540,11 @@ pico.Param = class {
 					let query = text ? separator + text : "";
 					this._debug("Share query: " + query);
 					data.url = url + query;
-				} else {
+				} else if (!files) {
 					let query = text ? "?" + text : "";
 					this._debug("Flush query: " + query);
 					window.history.replaceState(null, "", query);
-					data.url = window.location.href.replace(/[\?\#].*$/, '') + query;
+					data.url = window.location.href.replace(/[\?\#].*$/, "") + query;
 				}
 				if (files) {
 					data.files = files;

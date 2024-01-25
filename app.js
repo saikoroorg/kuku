@@ -11,8 +11,8 @@ const kcents = [-1.0,
 var playing = 0; // Playing count.
 var number = 1;
 const numberMax = 20;
-var levels = ["+1", "+10", "+20", "x5", "x9", "x12", "x16", "x19"];
-var samples = ["1 + 1", "5 + 5", "10+10", "5 * 5", "9 * 9", "12*12", "16* 9", "19*19"];
+var levels = ["+1", "-5", "+10", "x5", "x9", "x12", "x16", "x19"];
+var samples = ["1 + 1", "5 - 5", "10+10", "5 * 5", "9 * 9", "12*12", "16* 9", "19*19"];
 var level = 4;
 var state = "";
 
@@ -23,7 +23,7 @@ var operator = "*";
 var answer = 0;
 var correct = 0;
 var choices = [0, 0, 0];
-var choose = 0;
+var choose = -1;
 var angle = 0;
 var scale = 8, scale2 = 24;
 var startTime = 0;
@@ -44,6 +44,11 @@ async function appSelect(x) {
 	picoBeep(1.2, 0.1);
 }
 
+// Action button.
+async function appAction() {
+	await picoShareScreen();
+}
+
 // Load.
 async function appLoad() {
 
@@ -51,14 +56,20 @@ async function appLoad() {
 	picoLabel("select", "" + levels[level]);
 	picoLabel("minus", "-");
 	picoLabel("plus", "+");
-
-	// Load pallete data.
-	picoColor(colors);
 }
 
 // Title loop.
 async function appTitle() {
-	await picoClear();
+
+	// Initialize.
+	if (playing <= 0) {
+
+		// Disable share button.
+		picoLabel("action");
+
+		// Reset playing count.
+		playing = 1;
+	}
 
 	// Draw probrem sample.
 	await picoChar(samples[level], -1, 0,0, 0,8);
@@ -90,29 +101,29 @@ async function appProbrem() {
 				}
 				answer = probrem1 + probrem2;
 
-			// Add/Sub up to 10 not including 0.
+			// Add/Sub up to 10.
 			} else if (level == 1) {
 				operator = picoRandom(2) ? "+" : "-";
-				if (operator == "+") { // Add up to 10 not including 0.
-					probrem1 = picoRandom(9) + 1;
-					probrem2 = picoRandom(10 - probrem1) + 1;
+				if (operator == "+") { // Add up to 10.
+					probrem1 = picoRandom(9);
+					probrem2 = picoRandom(10 - probrem1);
 					answer = probrem1 + probrem2;
-				} else { // Sub up to 10 not including 0.
-					probrem1 = picoRandom(9) + 2;
-					probrem2 = picoRandom(probrem1 - 1) + 1;
+				} else { // Sub up to 10.
+					probrem1 = picoRandom(10);
+					probrem2 = picoRandom(probrem1);
 					answer = probrem1 - probrem2;
 				}
 
 			// Add/Sub up to 20 not including 0.
 			} else if (level == 2) {
 				operator = picoRandom(2) ? "+" : "-";
-				if (operator == "+") { // Add up to 20 including 0.
-					probrem1 = picoRandom(20);
-					probrem2 = picoRandom(20 - probrem1);
+				if (operator == "+") { // Add up to 20.
+					probrem1 = picoRandom(19) + 1;
+					probrem2 = picoRandom(19 - probrem1) + 1;
 					answer = probrem1 + probrem2;
-				} else { // Sub up to 20 including 0.
-					probrem1 = picoRandom(20);
-					probrem2 = picoRandom(probrem1);
+				} else { // Sub up to 20.
+					probrem1 = picoRandom(19) + 1;
+					probrem2 = picoRandom(probrem1 - 1) + 1;
 					answer = probrem1 - probrem2;
 				}
 			}
@@ -156,20 +167,20 @@ async function appProbrem() {
 
 		} else {
 
-			// Mul 1x1 to 12x12.
+			// Mul 2x2 to 12x12.
 			if (level == 5) {
-				probrem1 = picoRandom(12) + 1;
-				probrem2 = picoRandom(12) + 1;
+				probrem1 = picoRandom(11) + 2;
+				probrem2 = picoRandom(11) + 2;
 
-			// Mul 11x1 to 16x9.
+			// Mul 11x2 to 16x9.
 			} else if (level == 6) {
 				probrem1 = picoRandom(6) + 11;
-				probrem2 = picoRandom(9) + 1;
+				probrem2 = picoRandom(8) + 2;
 
-			// Mul 11x1 to 19x19.
+			// Mul 11x2 to 19x19.
 			} else if (level == 7) {
 				probrem1 = picoRandom(9) + 11;
-				probrem2 = picoRandom(19) + 1;
+				probrem2 = picoRandom(18) + 2;
 			}
 			operator = "*";
 			answer = probrem1 * probrem2;
@@ -200,7 +211,12 @@ async function appProbrem() {
 		choose = -1;
 	}
 
-	await picoClear();
+	// Roll and update animation.
+	if (playing <= 36) {
+		angle = (angle + 20) % 360;
+		picoFlush();
+		playing++;
+	}
 
 	// Draw number.
 	await picoChar("" + number + "/" + numberMax, 0, 0,-85, 0,2);
@@ -212,24 +228,15 @@ async function appProbrem() {
 	for (let i = 0; i < 3; i++) {
 		let x = (i-1)*60, y = 35;
 		let s = picoMotion(x, y, scale2, scale2) ? 0.8 : 1;
+
+		// Choose answer.
 		if (picoAction(x, y, scale2, scale2)) {
 			choose = i;
+			state = "answer";
+			playing = 0;
 		}
 		await picoRect([-1,-1,2,2], 3, x,y, angle,scale2 * s);
 		await picoChar("" + choices[i], 0, x,y, 0,scale * s);
-	}
-
-	// Roll and update animation.
-	if (playing <= 36) {
-		angle = (angle + 20) % 360;
-		picoFlush();
-		playing++;
-	}
-
-	// Wait for answer.
-	if (choose >= 0) {
-		state = "answer";
-		playing = 0;
 	}
 }
 
@@ -240,12 +247,11 @@ async function appAnswer() {
 	if (playing <= 0) {
 
 		// Correct sound.
-		if (choose >= 0 && choose == correct) {
-			picoBeep(kcents[number - 1], 0.1);
-			number++; // Go next probrem.
+		if (choose == correct) {
+			picoBeep(kcents[number], 0.1);
 
 		// Wrong sound.
-		} else if (choose >= 0 && choose != correct) {
+		} else {
 			picoBeep(-1.2, 0.1);
 		}
 
@@ -254,8 +260,6 @@ async function appAnswer() {
 		angle = 0;
 	}
 
-	await picoClear();
-
 	// Draw number.
 	await picoChar("" + number + "/" + numberMax, 0, 0,-85, 0,2);
 
@@ -263,7 +267,7 @@ async function appAnswer() {
 	await picoChar("" + probrem1 + operator + probrem2, -1, 0,-50, 0,scale);
 
 	// Draw choose answer.
-	if (choose >= 0 && choose != correct) {
+	if (choose != correct) {
 		let i = choose;
 		let x = (i-1)*60, y = 35;
 		await picoChar("*", -1, x,y, 0,scale);
@@ -274,20 +278,26 @@ async function appAnswer() {
 	let x = (i-1)*60, y = 35;
 	let s = picoMotion(x, y, scale2, scale2) ? 0.8 : 1;
 	if (picoAction(x, y, scale2, scale2)) {
-		choose = -1;
-	}
-	await picoRect([-1,-1,2,2], 0, x,y, 0,scale2 * s);
-	await picoChar("" + choices[i], -1, x,y, 0,scale * s);
 
-	// Go next probrem or show result.
-	if (choose < 0) {
-		if (number > numberMax) {
-			state = "result";
+		// Go next probrem or show result.
+		if (choose == correct) {
+			number++;
+			if (number > numberMax) {
+				state = "result";
+			} else {
+				state = "probrem";
+			}
+
+		// Retry this probrem.
 		} else {
 			state = "probrem";
 		}
+
+		choose = -1;
 		playing = 0;
 	}
+	await picoRect([-1,-1,2,2], 0, x,y, 0,scale2 * s);
+	await picoChar("" + choices[i], -1, x,y, 0,scale * s);
 }
 
 // Result loop.
@@ -305,11 +315,12 @@ async function appResult() {
 		let i = picoDiv(t, 100); // Integer part.
 		totalTime = "" + i + "." + (f < 10 ? "0" : "") + f;
 
+		// Enable share button.
+		picoLabel("action", "^");
+
 		// Reset playing count.
 		playing = 1;
 	}
-
-	await picoClear();
 
 	// Draw probrem sample.
 	await picoChar(samples[level], -1, 0,-85, 0,2);
@@ -334,6 +345,8 @@ async function appResult() {
 
 // Main.
 async function appMain() {
+	picoColor(colors);
+
 	if (state == "probrem") {
 		await appProbrem();
 
