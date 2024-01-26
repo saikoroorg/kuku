@@ -11,8 +11,8 @@ const kcents = [-1.0,
 var playing = 0; // Playing count.
 var number = 1;
 const numberMax = 20;
-var levels = ["+1", "-5", "+10", "x5", "x9", "x12", "x16", "x19"];
-var samples = ["1 + 1", "5 - 5", "10+10", "5 * 5", "9 * 9", "12*12", "16* 9", "19*19"];
+var levels = ["+1", "-2", "+10", "x5", "x9", "x12", "x16", "x19"];
+var samples = ["1 + 1", "2 - 2", "10+10", "5 * 5", "9 * 9", "12*12", "16* 9", "19*19"];
 var level = 4;
 var state = "";
 
@@ -28,6 +28,8 @@ var angle = 0;
 var scale = 8, scale2 = 24;
 var startTime = 0;
 var totalTime = 0;
+var resultDate = 0;
+
 
 // Select button.
 async function appSelect(x) {
@@ -108,12 +110,12 @@ async function appProbrem() {
 					probrem1 = picoRandom(answer);
 					probrem2 = answer - probrem1;
 				} else { // Sub up to 10.
-					probrem1 = picoRandom(9) + 1;// Not 0.
-					probrem2 = picoRandom(probrem1);
+					probrem1 = picoRandom(9) + 1; // Not 0.
+					probrem2 = picoRandom(probrem1 + 1);
 					answer = probrem1 - probrem2;
 				}
 
-			// Add/Sub up to 20 not including 0.
+			// Add/Sub up to 20.
 			} else if (level == 2) {
 				operator = picoRandom(2) ? "+" : "-";
 				if (operator == "+") { // Add up to 20.
@@ -121,8 +123,8 @@ async function appProbrem() {
 					probrem1 = picoRandom(answer);
 					probrem2 = answer - probrem1;
 				} else { // Sub up to 20.
-					probrem1 = picoRandom(19) + 1;// Not 0.
-					probrem2 = picoRandom(probrem1);
+					probrem1 = picoRandom(19) + 1; // Not 0.
+					probrem2 = picoRandom(probrem1 + 1);
 					answer = probrem1 - probrem2;
 				}
 			}
@@ -313,6 +315,7 @@ async function appResult() {
 		let f = picoMod(t, 100); // Fractional part.
 		let i = picoDiv(t, 100); // Integer part.
 		totalTime = "" + i + "." + (f < 10 ? "0" : "") + f;
+		resultDate = picoDate();
 
 		// Enable share button.
 		picoLabel("action", "^");
@@ -323,9 +326,10 @@ async function appResult() {
 
 	// Draw probrem sample.
 	await picoChar(samples[level], -1, 0,-85, 0,2);
+	await picoChar(resultDate, 2, 0,-75, 0,1);
 
 	// Draw result.
-	await picoChar("" + totalTime, -1, 0,0, 0,8);
+	await picoChar(totalTime, -1, 0,0, 0,8);
 
 	// Wait result.
 	if (playing <= 72) {
