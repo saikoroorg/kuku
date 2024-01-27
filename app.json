@@ -1,14 +1,15 @@
 {
 	"name": "kuku",
 	"short_name": "Kuku",
-	"version": "0.8.40126a",
+	"version": "0.8.40127a",
 	"author": "saikoro.org",
 	"background_color": "#fff",
 	"theme_color": "#fff",
 	"icons": [{
 		"src": "./icon.svg",
 		"sizes": "300x300",
-		"type": "image/svg"
+		"type": "image/svg",
+		"purpose": "maskable"
 	},{
 		"src": "./icon.png",
 		"sizes": "192x192",
